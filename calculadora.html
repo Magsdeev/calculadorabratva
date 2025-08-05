@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora GTA RP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e2f;
+      color: #fff;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h2 {
+      color: #ffcc00;
+      margin-top: 0;
+    }
+
+    .section {
+      background: #2e2e3f;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+
+    input[type="radio"] {
+      margin-right: 8px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+      background-color: #3e3e5a;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .radio-group label:hover {
+      background-color: #505072;
+      cursor: pointer;
+    }
+
+    .total {
+      font-weight: bold;
+      color: #00ffcc;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    table, th, td {
+      border: 1px solid #444;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+
+    input[type="number"].qtd {
+      width: 60px;
+      padding: 5px;
+    }
+
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead tr {
+        display: none;
+      }
+
+      td {
+        padding: 10px;
+        text-align: left;
+        position: relative;
+      }
+
+      td:before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+      }
+
+      .qtd {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CALCULADORA DE LAVAGEM -->
+  <div class="section">
+    <h2>💰 Calculadora da Bratva</h2>
+
+    <label for="dinheiro">Valor do Dinheiro Sujo:</label>
+    <input type="number" id="dinheiro" placeholder="Ex: 100000">
+
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="lavagem" value="0.70" checked>
+        Lavagem a 30% (Sem Parceria)
+      </label>
+      <label>
+        <input type="radio" name="lavagem" value="0.75">
+        Lavagem a 25% (Com Parceria)
+      </label>
+      <label>
+        <input type="radio" name="lavagem" value="0.80">
+        Lavagem a 20% (Exclusiva)
+      </label>
+    </div>
+
+    <p class="total" id="resultado">Resultado: R$ 0,00</p>
+  </div>
+
+  <!-- TABELA DE PRODUTOS -->
+  <div class="section">
+    <h2>📦 Tabela de Produtos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Valor Unitário</th>
+          <th>Quantidade</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="produtos">
+        <!-- Produtos adicionados via JS -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3"><strong>Total Geral</strong></td>
+          <td class="total" id="totalGeral">R$ 0,00</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <script>
+    // --- CALCULADORA DE LAVAGEM ---
+    const dinheiroInput = document.getElementById('dinheiro');
+    const radios = document.getElementsByName('lavagem');
+    const resultado = document.getElementById('resultado');
+
+    function calcularLavagem() {
+      let valor = parseFloat(dinheiroInput.value);
+      if (isNaN(valor)) valor = 0;
+
+      let percentual = 0.70;
+      for (const radio of radios) {
+        if (radio.checked) {
+          percentual = parseFloat(radio.value);
+          break;
+        }
+      }
+
+      let limpo = valor * percentual;
+      resultado.textContent = `Resultado: R$ ${limpo.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+    }
+
+    dinheiroInput.addEventListener('input', calcularLavagem);
+    radios.forEach(radio => radio.addEventListener('change', calcularLavagem));
+
+    // --- TABELA DE PRODUTOS ---
+    const produtos = [
+      { nome: "Cartçao Comun", preco: 3000 },
+      { nome: "Cartão Épico", preco: 7000 },
+      { nome: "Cartão Raro", preco: 11000 },
+      { nome: "Cartão Lendário", preco: 17000 },
+    ];
+
+    const tabela = document.getElementById('produtos');
+    const totalGeral = document.getElementById('totalGeral');
+
+    function atualizarTotais() {
+      let total = 0;
+
+      produtos.forEach((produto, index) => {
+        const qtdInput = document.getElementById(`qtd-${index}`);
+        const totalCell = document.getElementById(`total-${index}`);
+
+        let qtd = parseInt(qtdInput.value);
+        if (isNaN(qtd)) qtd = 0;
+
+        let subtotal = produto.preco * qtd;
+        total += subtotal;
+
+        totalCell.textContent = `R$ ${subtotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+      });
+
+      totalGeral.textContent = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+    }
+
+    produtos.forEach((produto, index) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td data-label="Produto">${produto.nome}</td>
+        <td data-label="Valor Unitário">R$ ${produto.preco.toLocaleString('pt-BR')}</td>
+        <td data-label="Quantidade">
+          <input type="number" id="qtd-${index}" class="qtd" value="0" min="0">
+        </td>
+        <td data-label="Total" id="total-${index}">R$ 0,00</td>
+      `;
+      tabela.appendChild(row);
+      document.getElementById(`qtd-${index}`).addEventListener('input', atualizarTotais);
+    });
+  </script>
+
+</body>
+</html>
